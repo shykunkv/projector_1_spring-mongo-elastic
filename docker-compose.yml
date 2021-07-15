@@ -1,0 +1,41 @@
+version: "3.7"
+
+services:
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./database:/data
+    networks:
+      - local-network
+
+  spring-boot:
+    image: spring-boot-app
+    container_name: spring
+    depends_on:
+      - mongo
+      - elasticsearch
+    environment:
+      - SPRING_DATA_MONGODB_HOST=mongo
+      - SPRING_DATA_MONGODB_PORT=27017
+    ports:
+      - "9000:9000"
+    networks:
+      - local-network
+
+  elasticsearch:
+    image: elasticsearch:7.6.2
+    container_name: elastic
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+    networks:
+      - local-network
+
+networks:
+  local-network:
+    name: "local-network"
